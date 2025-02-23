@@ -308,6 +308,17 @@
             ]
         ];
 
+        // Distractor words for recall task
+        // prettier-ignore
+        const distractor_words = [
+            "backpack", "helmet", "glasses", "wallet", "remote",
+            "pillow", "napkin", "towel", "flashlight", "umbrella",
+            "waterfall", "canyon", "pebble", "prairie", "meadow",
+            "silence", "whisper", "motion", "breeze", "shadow",
+            "thought", "memory", "laughter", "echo", "reflection",
+            "eagle", "rabbit", "turtle", "zebra", "parrot",
+        ];
+
         // Function to get random word bank and track options
         function get_word_bank() {
             if (word_banks.length === 0) {
@@ -406,20 +417,53 @@
             };
         }
 
-        // Create trial to recall learned words
-        function create_recall_trial(label) {
-            const recall_trial = {
-                type: jsPsychSurveyText,
-                questions: [
-                    {
-                        prompt: 'Type as many words from the previous list as possible.',
-                        rows: 5,
-                        columns: 40,
-                    },
-                ],
-                data: { phase: `immediate_recall_${label}` },
+        // Create a new recall checklist trial
+        function create_recall_trial(word_bank, label) {
+            // Combine word bank with distractor words and shuffle
+            const combined_bank = jsPsych.randomization.shuffle([
+                ...word_bank,
+                ...distractor_words,
+            ]);
+            // Get 15 choice options from the combined bank
+            const word_choices = combined_bank.slice(0, 15);
+            // Ensure answer_key only contains valid words from word_bank
+            const answer_key = word_choices.filter((word) =>
+                word_bank.includes(word)
+            );
+
+            return {
+                type: jsPsychSurvey,
+                survey_json: {
+                    showQuestionNumbers: false,
+                    elements: [
+                        {
+                            type: 'checkbox',
+                            title: 'Which words were included in the previous list?',
+                            choices: [...word_choices],
+                            name: 'selected_words',
+                        },
+                    ],
+                    choicesOrder: 'random',
+                    completeText: 'Continue',
+                },
+                on_finish: function (data) {
+                    // Assign phase label
+                    data['phase'] = `recall_${label}`;
+                    // Retrieve selected words
+                    const selected_words =
+                        data.response?.['selected_words'] || [];
+                    // Filter correct words from word bank
+                    const correct_words = selected_words.filter((word) =>
+                        word_bank.includes(word)
+                    );
+                    // Calculate recall accuracy
+                    data['accuracy'] =
+                        answer_key.length > 0
+                            ? correct_words.length / answer_key.length
+                            : 0;
+                    console.log(data); // Debugging
+                },
             };
-            return recall_trial;
         }
 
         // Define music options and shuffle for randomization
@@ -445,7 +489,7 @@
             timeline.push(odd_one_out);
 
             // Recall trials
-            const recall_trial = create_recall_trial(track);
+            const recall_trial = create_recall_trial(word_bank, track);
             timeline.push(recall_trial);
         });
 
