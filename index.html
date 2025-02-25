@@ -107,7 +107,8 @@
               <p>Next, you will be shown a series of words in the center of your screen. Please pay close attention and try to learn as many words as possible.</p>
               <p>You will then be asked to identify the words you saw to assess your retention.</p>
               <p>Afterward, you will be asked to repeat the process under different audio conditions.</p>
-              <p>Stay focused and do your best!`,
+              <p>Stay focused and do your best!
+            `,
             choices: ['Continue'],
         };
         timeline.push(instructions);
@@ -293,20 +294,20 @@
         // prettier-ignore
         const word_banks = [
             [
-                "apple", "table", "dog", "sun", "chair",
-                "pencil", "river", "moon", "house", "flower",
-                "bridge", "stone", "forest", "cloud", "pathway"
+                'apple', 'table', 'dog', 'sun', 'chair',
+                'pencil', 'river', 'moon', 'house', 'flower',
+                'bridge', 'stone', 'forest', 'cloud', 'pathway',
             ],
             [
-                "phone", "candle", "ocean", "guitar", "mouse",
-                "book", "lamp", "valley", "mountain", "car",
-                "mirror", "radio", "harbor", "road", "journal"
+                'phone', 'candle', 'ocean', 'guitar', 'mouse',
+                'book', 'lamp', 'valley', 'mountain', 'car',
+                'mirror', 'radio', 'harbor', 'road', 'journal',
             ],
             [
-                "tree", "window", "cloud", "star", "computer",
-                "train", "guitar", "desert", "cup", "door",
-                "ceiling", "desk", "keyboard", "horizon", "stream", 
-            ]
+                'tree', 'window', 'cloud', 'star', 'computer',
+                'train', 'guitar', 'desert', 'cup', 'door',
+                'ceiling', 'desk', 'keyboard', 'horizon', 'stream',
+            ],
         ];
 
         // Distractor words for recall task
@@ -445,8 +446,8 @@
             },
             {
                 root: 'trial_9',
-                images: ['dolphin', 'fish', 'jellyfish', 'bear'],
-                correct: 'bear',
+                images: ['dolphin', 'fish', 'jellyfish', 'goose'],
+                correct: 'goose',
             },
             {
                 root: 'trial_10',
@@ -455,13 +456,28 @@
             },
             {
                 root: 'trial_11',
-                images: ['cap', 'tophat', 'crown', 'custard'],
-                correct: 'custard',
+                images: ['cap', 'tophat', 'crown', 'glasses'],
+                correct: 'glasses',
             },
             {
                 root: 'trial_12',
                 images: ['cupcake', 'cake', 'icecream', 'chick'],
                 correct: 'chick',
+            },
+            {
+                root: 'trial_13',
+                images: ['bee', 'butterfly', 'ladybug', 'turtle'],
+                correct: 'turtle',
+            },
+            {
+                root: 'trial_14',
+                images: ['airplane', 'helicopter', 'rocket', 'canoe'],
+                correct: 'canoe',
+            },
+            {
+                root: 'trial_15',
+                images: ['ice', 'snowman', 'cold', 'fire'],
+                correct: 'fire',
             },
         ];
 
@@ -478,7 +494,7 @@
 
         // Just testing this out as a potential distractor
         function create_odd_one_out_distractors(label) {
-            const NUM_TRIALS = 4;
+            const NUM_TRIALS = 5;
             const image_sets = get_image_sets(NUM_TRIALS);
 
             const trials = [];
@@ -536,6 +552,9 @@
                     completeText: 'Continue',
                 },
                 on_finish: function (data) {
+                    // Stop audio
+                    audio.pause();
+
                     // Assign phase label
                     data['phase'] = `recall_${label}`;
 
@@ -562,19 +581,36 @@
             };
         }
 
+        function create_trial_transition(trial_index) {
+            const phase = trial_index === 0 ? 'first' : 'second';
+
+            const transition = {
+                type: jsPsychHtmlButtonResponse,
+                choices: ['Continue'],
+                stimulus: `
+                    <p><strong>You've finished the ${phase} trial.</strong></p>
+                    <p>Take a moment to reset your mind. 🧠</p>
+                    <p>Press <em>Continue</em> when you’re ready to start the next trial.</p>
+                `,
+            };
+
+            return transition;
+        }
+
         // Define music options and shuffle for randomization
         const music_options = ['instrumental', 'vocal', 'silence'];
         const trial_music = jsPsych.randomization.shuffle(music_options);
 
         // Generate a series of trials, distractors, and recalls for each music condition
-        trial_music.forEach((track) => {
+        trial_music.forEach((track, index) => {
             // Load the appropriate audio
             const start_trial_audio = create_audio_start_trial(track);
             timeline.push(start_trial_audio);
 
             // Present words for the condition
             const word_bank = get_word_bank(word_banks);
-            timeline.push(...create_word_trials(word_bank, track));
+            const word_trials = create_word_trials(word_bank, track);
+            timeline.push(word_trials);
 
             // const math_trials = create_math_distractor_trials();
             // timeline.push(math_trials);
@@ -586,7 +622,25 @@
             // Recall trials
             const recall_trial = create_recall_trial(word_bank, track);
             timeline.push(recall_trial);
+
+            // Transition between trials
+            if (index !== trial_music.length - 1) {
+                const trial_transition = create_trial_transition(index);
+                timeline.push(trial_transition);
+            }
         });
+
+        const reflection_transition = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: `
+                <h2>Great job!</h2>
+                <p>You have now completed the main part of the experiment.</p>
+                <p>Before we finish, we’d like to ask you a few questions about your experience.</p>
+                <p>Please answer the following reflection survey honestly. Your responses will help us better understand your perspective on the task.</p>
+            `,
+            choices: ['Continue'],
+        };
+        timeline.push(reflection_transition);
 
         // Reflection survey
         const reflection_survey = {
@@ -678,9 +732,6 @@
                     },
                 ],
             },
-            on_start: function () {
-                audio.pause();
-            },
         };
         timeline.push(reflection_survey);
 
@@ -701,8 +752,12 @@
         const debrief = {
             type: jsPsychHtmlButtonResponse,
             stimulus: `
-              <h2>Thank you!</h2>
-              <p>This experiment was designed to study if people's motivation changes when listening to different music while learning.</p>`,
+                <h2>Thank You for Participating!</h2>
+                <p>This experiment was designed to explore how different types of music may influence motivation and memory during learning.</p>
+                <p>By analyzing recall performance under different music conditions, we aim to better understand how music influences focus and information retention.</p>
+                <p>Your participation contributes valuable insights into the role of music in academic performance and learning strategies. Thank you for your time and contribution!</p>
+                <p>If you have any questions about this study, please contact <strong>[Name]</strong> at <strong>[Email Address]</strong>.</p>
+            `,
             choices: ['Finish'],
         };
         timeline.push(debrief);
@@ -711,6 +766,10 @@
             type: jsPsychFullscreen,
             fullscreen_mode: false,
             delay_after: 0,
+            on_finish: function () {
+                // End the experiment
+                jsPsych.abortExperiment('You may now close this window.');
+            },
         };
         timeline.push(exit_fullscreen);
 
