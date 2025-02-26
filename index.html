@@ -101,13 +101,15 @@
         const instructions = {
             type: jsPsychHtmlButtonResponse,
             stimulus: `
-              <h2>Welcome to our study!</h2>
-              <p><strong>Please read the following instructions:</strong></p>
-              <p> In this study, you will complete a baseline evaluation about yourself and your music habits, genre preferences, study routines, and motivation levels.</p>
-              <p>Next, you will be shown a series of words in the center of your screen. Please pay close attention and try to learn as many words as possible.</p>
-              <p>You will then be asked to identify the words you saw to assess your retention.</p>
-              <p>Afterward, you will be asked to repeat the process under different audio conditions.</p>
-              <p>Stay focused and do your best!
+                <h2>Welcome to our study!</h2>
+                <p><strong>Please read the following instructions carefully:</strong></p>
+                <div style="text-align: left; max-width: 800px;">
+                    <p>In this study, you will complete a brief baseline evaluation about your music habits, genre preferences, study routines, and motivation levels.</p>
+                    <p>Next, you will be presented with a series of words in the center of your screen. Please pay close attention and try to learn as many words as possible, as you will later be tested on your memory of them.</p>
+                    <p>Between learning phases, you will complete short activities designed to keep you engaged. These tasks are not part of the retention test, but they are important for the study.</p>
+                    <p>You will repeat this process under different audio conditions to explore how music affects learning and retention.</p>
+                </div>
+                <p><em>Stay focused, and do your best!</em></p>
             `,
             choices: ['Continue'],
         };

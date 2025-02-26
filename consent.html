@@ -22,6 +22,10 @@
         input[type='checkbox'] {
             zoom: 1.5;
         }
+        #consent-body {
+            text-align: left;
+            max-width: 900px;
+        }
         #consent_container {
             display: flex;
             align-items: center;
@@ -32,10 +36,41 @@
 
 <body>
     <div id="consent">
-        <p>
-            This is a demo experiment, with this minimal consent form included.
-            To continue, click the checkbox below and hit "Start Experiment".
-        </p>
+        <h2>Consent to Participate</h2>
+
+        <div id="consent-body">
+            <p>
+                Before beginning this study, please read the following
+                information.
+            </p>
+            <p>
+                This study examines how different types of music may influence
+                learning and memory. Your participation will contribute to a
+                better understanding of cognitive processing.
+            </p>
+            <hr />
+            <p>
+                <strong>Estimated Time Commitment:</strong> This study will take
+                approximately <strong>10 to 15 minutes</strong> to complete.
+            </p>
+            <p>
+                <strong>Important Instructions:</strong> To ensure accurate
+                results, please complete this experiment in a quiet,
+                distraction-free environment. Avoid multitasking and minimize
+                background noise.
+            </p>
+            <p>
+                Your participation is entirely voluntary, and you may withdraw
+                at any time without penalty. Your responses will remain
+                confidential and used only for research purposes.
+            </p>
+            <hr />
+            <p>
+                By checking the box below and clicking
+                <em>Start Experiment</em>, you confirm that you have read and
+                understood this information and agree to participate.
+            </p>
+        </div>
         <p>
             <label id="consent_container">
                 <input type="checkbox" id="consent_checkbox" />
