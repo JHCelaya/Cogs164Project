@@ -109,6 +109,7 @@
                     <p>Between learning phases, you will complete short activities designed to keep you engaged. These tasks are not part of the retention test, but they are important for the study.</p>
                     <p>You will repeat this process under different audio conditions to explore how music affects learning and retention.</p>
                 </div>
+                <hr />
                 <p><em>Stay focused, and do your best!</em></p>
             `,
             choices: ['Continue'],
@@ -288,7 +289,7 @@
                 }.</p>
                   <p><strong>Please pay attention to the words in the center of your screen.</strong></p>
                   <p><em>The trial will begin in a few seconds.</em></p>`,
-                trial_duration: 5000,
+                trial_duration: 10000,
             };
         }
 
@@ -301,12 +302,12 @@
                 'bridge', 'stone', 'forest', 'cloud', 'pathway',
             ],
             [
-                'phone', 'candle', 'ocean', 'guitar', 'mouse',
+                'phone', 'candle', 'ocean', 'piano', 'mouse',
                 'book', 'lamp', 'valley', 'mountain', 'car',
                 'mirror', 'radio', 'harbor', 'road', 'journal',
             ],
             [
-                'tree', 'window', 'cloud', 'star', 'computer',
+                'tree', 'window', 'hill', 'star', 'computer',
                 'train', 'guitar', 'desert', 'cup', 'door',
                 'ceiling', 'desk', 'keyboard', 'horizon', 'stream',
             ],
@@ -412,7 +413,9 @@
                         correct_choice: problem.correct_index,
                     },
                     on_finish: function (data) {
-                        data.correct = data.response === problem.correct_index;
+                        data['problem'] = problem.question;
+                        data['correct'] =
+                            data.response === problem.correct_index;
                         console.log(data);
                     },
                 });
@@ -468,8 +471,10 @@
                     },
                     on_finish: function (data) {
                         let selectedImage = choices[data.response];
-                        data.correct = selectedImage === image_set.correct;
+                        data['correct'] = selectedImage === image_set.correct;
                         data['phase'] = `ooo_distractor_${label}`;
+                        data['image_set'] = choices;
+                        data['selected_image'] = selectedImage;
                         console.log(data); // Debugging
                     },
                 });
@@ -479,19 +484,21 @@
 
         // Create a new recall checklist trial
         function create_recall_trial(word_bank, label) {
+            // Get random answer key
+            const answer_key = jsPsych.randomization
+                .shuffle(word_bank)
+                .slice(0, 10);
             // Get random distractor words
-            const distractor_words = get_word_bank(distractor_word_banks);
+            const distractor_bank = get_word_bank(distractor_word_banks);
+            const distractor_words = jsPsych.randomization
+                .shuffle(distractor_bank)
+                .slice(0, 5);
+
             // Combine word bank with distractor words and shuffle
-            const combined_bank = jsPsych.randomization.shuffle([
-                ...word_bank,
+            const word_choices = jsPsych.randomization.shuffle([
+                ...answer_key,
                 ...distractor_words,
             ]);
-            // Get 15 choice options from the combined bank
-            const word_choices = combined_bank.slice(0, 15);
-            // Ensure answer_key only contains valid words from word_bank
-            const answer_key = word_choices.filter((word) =>
-                word_bank.includes(word)
-            );
 
             return {
                 type: jsPsychSurvey,
@@ -502,7 +509,7 @@
                             type: 'checkbox',
                             title: 'Which words were included in the previous list?',
                             choices: [...word_choices],
-                            name: 'selected_words',
+                            name: 'selected_answers',
                         },
                     ],
                     choicesOrder: 'random',
@@ -515,22 +522,36 @@
                     // Assign phase label
                     data['phase'] = `recall_${label}`;
 
-                    // Retrieve selected words
-                    const selected_words =
-                        data.response['selected_words'] || [];
+                    // Track words
+                    data['answer_key'] = answer_key;
+                    data['distractors'] = distractor_words;
 
-                    // Filter correct and incorrect words from word bank
-                    const correct_words = selected_words.filter((word) =>
-                        word_bank.includes(word)
+                    // Retrieve selected words
+                    const selected_answers =
+                        data.response['selected_answers'] || [];
+
+                    // Filter correct words from selected answers
+                    const correct_answers = selected_answers.filter((word) =>
+                        answer_key.includes(word)
                     );
-                    const incorrect_words = selected_words.filter(
-                        (word) => !word_bank.includes(word)
+                    data['correct_answers'] = correct_answers;
+
+                    // Filter incorrect words from selected answers
+                    const incorrect_answers = selected_answers.filter(
+                        (word) => !answer_key.includes(word)
                     );
+                    data['incorrect_answers'] = incorrect_answers;
+
+                    // Check for misses
+                    const missed_answers = answer_key.filter(
+                        (word) => !selected_answers.includes(word)
+                    );
+                    data['missed_answers'] = missed_answers;
 
                     // Calculate recall accuracy
                     // prettier-ignore
                     data['accuracy'] = answer_key.length > 0
-                        ? Math.max((correct_words.length - incorrect_words.length) / answer_key.length, 0)
+                        ? Math.max((correct_answers.length - incorrect_answers.length) / answer_key.length, 0)
                         : 0;
 
                     console.log(data); // Debugging
@@ -599,9 +620,13 @@
             type: jsPsychHtmlButtonResponse,
             stimulus: `
                 <h2>Great job!</h2>
-                <p>You have now completed the main part of the experiment.</p>
-                <p>Before we finish, we’d like to ask you a few questions about your experience.</p>
-                <p>Please answer the following reflection survey honestly. Your responses will help us better understand your perspective on the task.</p>
+                <p><em>You have now completed the main part of the experiment.</em></p>
+                <div style="text-align: left; max-width: 800px;">
+                    <p>Before we conclude, we would like to ask you a few questions about your experience. Your feedback is valuable and will help us improve our understanding of how different factors influenced your performance.</p>
+                    <p>Please take a moment to complete the following reflection survey. We encourage you to answer honestly, as your responses will provide important insights into your perspective on the task.</p>
+                </div>
+                <hr />
+                <p>Thank you for your time and effort!</p>
             `,
             choices: ['Continue'],
         };
@@ -716,11 +741,12 @@
         const debrief = {
             type: jsPsychHtmlButtonResponse,
             stimulus: `
-                <h2>Thank You for Participating!</h2>
-                <p>This experiment was designed to explore how different types of music may influence motivation and memory during learning.</p>
-                <p>By analyzing recall performance under different music conditions, we aim to better understand how music influences focus and information retention.</p>
-                <p>Your participation contributes valuable insights into the role of music in academic performance and learning strategies. Thank you for your time and contribution!</p>
-                <p>If you have any questions about this study, please contact <strong>[Name]</strong> at <strong>[Email Address]</strong>.</p>
+                <h2>Thank you so much for completing our experiment!</h2>
+                <div style="text-align: left; max-width: 800px;">
+                    <p>In this experiment, our main purpose was to see the ways in which different audio conditions impact a person’s learning.</p> 
+                    <p>We are interested in looking at if different kinds of music can have an affect on motivation and how well someone can perform a word learning task.</p>
+                    <p>If you have any questions regarding the study please reach out to <strong><a href="mailto:nalbahar@ucsd.edu">nalbahar@ucsd.edu</a></strong> or <strong><a href="mailto:zalcala@ucsd.edu">zalcala@ucsd.edu</a></strong>.</p>
+                </div>
             `,
             choices: ['Finish'],
         };
