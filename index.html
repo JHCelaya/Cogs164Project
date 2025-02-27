@@ -416,7 +416,7 @@
                         data['problem'] = problem.question;
                         data['correct'] =
                             data.response === problem.correct_index;
-                        console.log(data);
+                        // console.log(data); // Debugging
                     },
                 });
             });
@@ -475,7 +475,7 @@
                         data['phase'] = `ooo_distractor_${label}`;
                         data['image_set'] = choices;
                         data['selected_image'] = selectedImage;
-                        console.log(data); // Debugging
+                        // console.log(data); // Debugging
                     },
                 });
             });
@@ -541,20 +541,29 @@
                         (word) => !answer_key.includes(word)
                     );
                     data['incorrect_answers'] = incorrect_answers;
+                    // Track false alarms
+                    data['false_alarms'] =
+                        selected_answers.length > 0
+                            ? incorrect_answers.length /
+                              (incorrect_answers.length +
+                                  correct_answers.length)
+                            : 0;
 
-                    // Check for misses
+                    // Check for misses and calculate miss rate
                     const missed_answers = answer_key.filter(
                         (word) => !selected_answers.includes(word)
                     );
                     data['missed_answers'] = missed_answers;
+                    data['miss_rate'] =
+                        missed_answers.length / answer_key.length;
 
                     // Calculate recall accuracy
-                    // prettier-ignore
-                    data['accuracy'] = answer_key.length > 0
-                        ? Math.max((correct_answers.length - incorrect_answers.length) / answer_key.length, 0)
-                        : 0;
-
-                    console.log(data); // Debugging
+                    data['accuracy'] =
+                        correct_answers.length /
+                        (correct_answers.length +
+                            missed_answers.length +
+                            incorrect_answers.length);
+                    // console.log(data); // Debugging
                 },
             };
         }
