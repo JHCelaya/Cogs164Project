@@ -278,15 +278,29 @@
         timeline.push(audio_test);
 
         function create_audio_start_trial(music) {
+            let music_label;
+
+            switch (music) {
+                case 'instrumental':
+                    music_label = 'chill instrumental';
+                    break;
+                case 'upbeat_instrumental':
+                    music_label = 'upbeat instrumental';
+                    break;
+                case 'lyrical':
+                    music_label = 'lyrical music';
+                    break;
+                default:
+                    music_label = 'silence';
+            }
+
             return {
                 type: jsPsychHtmlKeyboardResponse,
                 choices: 'NO_KEYS',
                 on_start: function () {
                     loadAudio(music);
                 },
-                stimulus: `<p>Starting trial with ${
-                    (music !== 'silence' && `${music} music`) || 'silence'
-                }.</p>
+                stimulus: `<p>Starting trial with ${music_label}.</p>
                   <p><strong>Please pay attention to the words in the center of your screen.</strong></p>
                   <p><em>The trial will begin in a few seconds.</em></p>`,
                 trial_duration: 10000,
@@ -398,7 +412,6 @@
             { question: '8 × 6 = ?', choices: ['42', '48', '46', '44'], correct_index: 1 },
             { question: '99 ÷ 11 = ?', choices: ['9', '8', '11', '10'], correct_index: 0 },
             { question: '32 - 18 = ?', choices: ['13', '15', '14', '16'], correct_index: 2 }
-
         ];
 
         // Get random math problems
@@ -455,7 +468,12 @@
             { root: 'trial_12', images: ['cupcake', 'cake', 'icecream', 'chick'], correct: 'chick' },
             { root: 'trial_13', images: ['bee', 'butterfly', 'ladybug', 'turtle'], correct: 'turtle' },
             { root: 'trial_14', images: ['airplane', 'helicopter', 'rocket', 'canoe'], correct: 'canoe' },
-            { root: 'trial_15', images: ['ice', 'snowman', 'cold', 'fire'], correct: 'fire' }
+            { root: 'trial_15', images: ['ice', 'snowman', 'cold', 'fire'], correct: 'fire' },
+            { root: 'trial_16', images: ['saxophone', 'trumpet', 'piano', 'popper'], correct: 'popper' },
+            { root: 'trial_17', images: ['scooter', 'skateboard', 'skates', 'controller'], correct: '' },
+            { root: 'trial_18', images: ['needle', 'thread', 'yarn', 'palette'], correct: 'palette' },
+            { root: 'trial_19', images: ['blue_circle', 'red_circle', 'green_circle', 'orange_square'], correct: 'orange_square' },
+            { root: 'trial_20', images: ['sunflower', 'plant', 'tree', 'raccoon'], correct: 'raccoon' }
         ];
 
         // Get random image sets
@@ -584,13 +602,27 @@
         }
 
         function create_trial_transition(trial_index) {
-            const phase = trial_index === 0 ? 'first' : 'second';
+            let prev_phase;
+
+            switch (trial_index) {
+                case 0:
+                    prev_phase = 'first';
+                    break;
+                case 1:
+                    prev_phase = 'second';
+                    break;
+                case 2:
+                    prev_phase = 'third';
+                    break;
+                default:
+                    prev_phase = 'previous';
+            }
 
             const transition = {
                 type: jsPsychHtmlButtonResponse,
                 choices: ['Continue'],
                 stimulus: `
-                    <p><strong>You've finished the ${phase} trial.</strong></p>
+                    <p><strong>You've finished the ${prev_phase} trial.</strong></p>
                     <p>Take a moment to reset your mind. 🧠</p>
                     <p>Press <em>Continue</em> when you’re ready to start the next trial.</p>
                 `,
@@ -599,7 +631,12 @@
         }
 
         // Define music options and shuffle for randomization
-        const music_options = ['instrumental', 'lyrical', 'silence', 'upbeat_instrumental'];
+        const music_options = [
+            'instrumental',
+            'lyrical',
+            'silence',
+            'upbeat_instrumental',
+        ];
         const trial_music = jsPsych.randomization.shuffle(music_options);
 
         // Generate a series of trials, distractors, and recalls for each music condition
