@@ -282,10 +282,10 @@
 
             switch (music) {
                 case 'instrumental':
-                    music_label = 'chill instrumental';
+                    music_label = 'chill instrumental music';
                     break;
                 case 'upbeat_instrumental':
-                    music_label = 'upbeat instrumental';
+                    music_label = 'upbeat instrumental music';
                     break;
                 case 'lyrical':
                     music_label = 'lyrical music';
@@ -722,6 +722,20 @@
                                 rateMax: 10,
                                 isRequired: true,
                             },
+                            {
+                                type: 'ranking',
+                                title: 'Please rank the music based on the motivation you experienced.',
+                                description:
+                                    '(1 = Most Motivating, 4 = Least Motivating)',
+                                choices: [
+                                    'Chill Instrumental',
+                                    'Upbeat Instrumental',
+                                    'Lyrical Music',
+                                    'Silence',
+                                ],
+                                name: 'motivation_ranking',
+                                isRequired: true,
+                            },
                         ],
                     },
                     {
@@ -736,6 +750,19 @@
                                     'Speakers/Out loud',
                                 ],
                                 isRequired: true,
+                            },
+                            {
+                                type: 'radiogroup',
+                                title: 'What device did you perform this study with?',
+                                name: 'reflect-device',
+                                choices: [
+                                    'Phone',
+                                    'Tablet',
+                                    'Laptop',
+                                    'Desktop Computer',
+                                ],
+                                isRequired: true,
+                                showOtherItem: true,
                             },
                             {
                                 type: 'radiogroup',
