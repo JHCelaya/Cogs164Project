@@ -431,10 +431,10 @@
             problems.forEach((problem) => {
                 trials.push({
                     type: jsPsychHtmlButtonResponse,
-                    stimulus: `<p style="font-size: 32px;">${problem.question}</p>`,
+                    stimulus: `<p style="font-size: 36px;">${problem.question}</p>`,
                     choices: problem.choices,
                     button_html: function (choice) {
-                        return `<button class="jspsych-btn" style="font-size: 20px;">${choice}</button>`;
+                        return `<button class="jspsych-btn" style="font-size: 24px;">${choice}</button>`;
                     },
                     data: {
                         phase: `math_distractor_${track}`,
@@ -764,6 +764,10 @@
                                 isRequired: true,
                                 showOtherItem: true,
                             },
+                        ],
+                    },
+                    {
+                        elements: [
                             {
                                 type: 'radiogroup',
                                 title: 'Have you heard the songs in this experiment before?',
