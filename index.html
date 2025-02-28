@@ -311,6 +311,11 @@
                 'train', 'guitar', 'desert', 'cup', 'door',
                 'ceiling', 'desk', 'keyboard', 'horizon', 'stream',
             ],
+            [
+                'basket', 'tower', 'riverbank', 'glacier', 'notebook',
+                'planet', 'meadow', 'statue', 'lantern', 'avenue',
+                'whistle', 'saddle', 'parade', 'fountain', 'canvas',
+            ]
         ];
 
         // Distractor words for recall task
@@ -328,6 +333,10 @@
                 'ladder', 'suitcase', 'basket', 'magnet', 'stopwatch',
                 'violin', 'telescope', 'marble', 'plank', 'blueprint'
             ],
+            [
+                'doormat', 'snowflake', 'lighthouse', 'pendulum', 'hourglass',
+                'accordion', 'microscope', 'sketchpad', 'candlewick', 'tapestry'
+            ]
         ];
 
         // Function to get random word bank and track options
@@ -584,7 +593,7 @@
         }
 
         // Define music options and shuffle for randomization
-        const music_options = ['instrumental', 'lyrical', 'silence'];
+        const music_options = ['instrumental', 'lyrical', 'silence', 'upbeat_instrumental'];
         const trial_music = jsPsych.randomization.shuffle(music_options);
 
         // Generate a series of trials, distractors, and recalls for each music condition
