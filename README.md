@@ -2,4 +2,4 @@
 
 To run the experiment, click on the following link:
 
-https://somethingrotten.github.io/Cogs164Project/
+https://JHCelaya.github.io/Cogs164Project/
